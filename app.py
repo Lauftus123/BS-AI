@@ -313,27 +313,67 @@ with col1:
         if st.button("Corporate", key="preset_corporate"):
             st.session_state.preset = "corporate"
 
+    with preset_cols[0]:
+        if st.button("Small Business", key="preset_smallbiz"):
+            st.session_state.preset = "smallbiz"
+    with preset_cols[1]:
+        if st.button("Tech Startup", key="preset_startup"):
+            st.session_state.preset = "startup"
+    with preset_cols[2]:
+        if st.button("Individual", key="preset_individual"):
+            st.session_state.preset = "individual"
+    with preset_cols[3]:
+        if st.button("Corporate", key="preset_corporate"):
+            st.session_state.preset = "corporate"
+
+    # Get data from preset or Excel
     if "preset" in st.session_state:
         p = PRESETS[st.session_state.preset]
-        entity_name = st.text_input("Entity / Client Name", p["name"])
-        sector = st.text_input("Industry / Sector", p["sector"])
-        revenue = st.number_input("Annual Revenue (USD)", value=p["revenue"])
-        assets = st.number_input("Total Assets (USD)", value=p["assets"])
-        liabilities = st.number_input("Total Liabilities (USD)", value=p["liabilities"])
-        profit = st.number_input("Net Profit / Loss (USD)", value=p["profit"])
-        credit_score = st.number_input("Credit Score", value=p["credit"], min_value=300, max_value=850)
-        years = st.number_input("Years in Operation", value=p["years"], min_value=0)
-        context = st.text_area("Additional Context / Notes", p["context"])
+        entity_name = p["name"]
+        sector = p["sector"]
+        revenue = p["revenue"]
+        assets = p["assets"]
+        liabilities = p["liabilities"]
+        profit = p["profit"]
+        credit_score = p["credit"]
+        years = p["years"]
+        context = p["context"]
+    elif "excel_data" in st.session_state and st.session_state.excel_data is not None:
+        df = st.session_state.excel_data
+        entity_name = str(df.iloc[0].get("Entity Name", df.iloc[0].get("entity", "Excel Entity")))
+        sector = str(df.iloc[0].get("Sector", df.iloc[0].get("sector", "General")))
+        revenue = float(df.iloc[0].get("Revenue", df.iloc[0].get("revenue", 0)))
+        assets = float(df.iloc[0].get("Assets", df.iloc[0].get("assets", 0)))
+        liabilities = float(df.iloc[0].get("Liabilities", df.iloc[0].get("liabilities", 0)))
+        profit = float(df.iloc[0].get("Profit", df.iloc[0].get("profit", 0)))
+        credit_score = int(df.iloc[0].get("Credit Score", df.iloc[0].get("credit_score", 650)))
+        years = int(df.iloc[0].get("Years", df.iloc[0].get("years", 1)))
+        context = str(df.iloc[0].get("Context", df.iloc[0].get("context", "Excel data analysis")))
     else:
-        entity_name = st.text_input("Entity / Client Name", "Harare Trading Co.")
-        sector = st.text_input("Industry / Sector", "Retail & Trade")
-        revenue = st.number_input("Annual Revenue (USD)", value=320000)
-        assets = st.number_input("Total Assets (USD)", value=480000)
-        liabilities = st.number_input("Total Liabilities (USD)", value=290000)
-        profit = st.number_input("Net Profit / Loss (USD)", value=42000)
-        credit_score = st.number_input("Credit Score", value=620, min_value=300, max_value=850)
-        years = st.number_input("Years in Operation", value=4, min_value=0)
-        context = st.text_area("Additional Context / Notes", "Applying for a working capital loan of USD 80,000 to expand inventory.")
+        p = PRESETS["smallbiz"]
+        entity_name = p["name"]
+        sector = p["sector"]
+        revenue = p["revenue"]
+        assets = p["assets"]
+        liabilities = p["liabilities"]
+        profit = p["profit"]
+        credit_score = p["credit"]
+        years = p["years"]
+        context = p["context"]
+
+    # Show selected data
+    st.markdown("### 📊 Selected Data")
+    col_data1, col_data2 = st.columns(2)
+    with col_data1:
+        st.markdown(f"**Entity:** {entity_name}")
+        st.markdown(f"**Sector:** {sector}")
+        st.markdown(f"**Revenue:** ${revenue:,}")
+        st.markdown(f"**Assets:** ${assets:,}")
+    with col_data2:
+        st.markdown(f"**Liabilities:** ${liabilities:,}")
+        st.markdown(f"**Profit:** ${profit:,}")
+        st.markdown(f"**Credit Score:** {credit_score}")
+        st.markdown(f"**Years:** {years}")
 
     run_btn = st.button("🚀 Run AI Agent Analysis")
 
@@ -366,20 +406,6 @@ with col2:
     """, unsafe_allow_html=True)
 
 if run_btn:
-    # Use Excel data if uploaded, otherwise use form inputs
-    if "excel_data" in st.session_state and st.session_state.excel_data is not None:
-        df = st.session_state.excel_data
-        # Extract data from first row of Excel
-        entity_name = str(df.iloc[0].get("Entity Name", df.iloc[0].get("entity", "Excel Entity")))
-        sector = str(df.iloc[0].get("Sector", df.iloc[0].get("sector", "General")))
-        revenue = float(df.iloc[0].get("Revenue", df.iloc[0].get("revenue", 0)))
-        assets = float(df.iloc[0].get("Assets", df.iloc[0].get("assets", 0)))
-        liabilities = float(df.iloc[0].get("Liabilities", df.iloc[0].get("liabilities", 0)))
-        profit = float(df.iloc[0].get("Profit", df.iloc[0].get("profit", 0)))
-        credit_score = int(df.iloc[0].get("Credit Score", df.iloc[0].get("credit_score", 650)))
-        years = int(df.iloc[0].get("Years", df.iloc[0].get("years", 1)))
-        context = str(df.iloc[0].get("Context", df.iloc[0].get("context", "Excel data analysis")))
-    
     debt_ratio = assets / assets if assets > 0 else 0
     profit_margin = (profit / revenue * 100) if revenue > 0 else 0
     equity = assets - liabilities
