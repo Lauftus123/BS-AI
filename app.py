@@ -313,19 +313,6 @@ with col1:
         if st.button("Corporate", key="preset_corporate"):
             st.session_state.preset = "corporate"
 
-    with preset_cols[0]:
-        if st.button("Small Business", key="preset_smallbiz"):
-            st.session_state.preset = "smallbiz"
-    with preset_cols[1]:
-        if st.button("Tech Startup", key="preset_startup"):
-            st.session_state.preset = "startup"
-    with preset_cols[2]:
-        if st.button("Individual", key="preset_individual"):
-            st.session_state.preset = "individual"
-    with preset_cols[3]:
-        if st.button("Corporate", key="preset_corporate"):
-            st.session_state.preset = "corporate"
-
     # Get data from preset or Excel
     if "preset" in st.session_state:
         p = PRESETS[st.session_state.preset]
